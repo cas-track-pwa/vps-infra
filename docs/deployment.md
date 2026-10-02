@@ -3,6 +3,11 @@
 Condensed companion to [`time-tracker/docs/debian-13-vps.md`](https://github.com/cas-track-pwa/time-tracker/blob/master/docs/debian-13-vps.md),
 which has the long-form explanation. This is the operational short version.
 
+> Bringing this up for real business use? Also read
+> [`architecture-review.md`](architecture-review.md) — Stripe webhook
+> reachability, outbound email, backups/restore, 2FA, RustDesk and monitoring are
+> **not** covered by `provision.sh`.
+
 ## Prerequisites
 
 - Fresh Debian 13 VPS, a sudo user, SSH key access.
@@ -77,6 +82,23 @@ In the browser: log in, add an entry (sync should go idle), generate a report,
 uploads, and pushes to B2 if `RESTIC_REPOSITORY` or `RCLONE_DEST` is set. Install
 `restic`/`rclone`, export the credentials (systemd `EnvironmentFile` or a root-only
 file), and run it on a timer. Test a restore once.
+
+> Also back up ITFlow's **vault encryption key** separately from the database; a
+> DB restore without it is useless. See [`architecture-review.md`](architecture-review.md#3-backups--disaster-recovery).
+
+## 7. Post-bring-up (not automated)
+
+These are required for real use but are deliberately left manual:
+
+- **Outbound email:** configure an SMTP relay in ITFlow and publish
+  SPF/DKIM/DMARC, or invoice/reminder email will be blocked.
+- **Stripe:** pick a webhook reachability path (Tunnel/Funnel/relay/manual) —
+  a tailnet-only host cannot receive Stripe webhooks.
+- **RustDesk:** self-host the relay behind the tailnet.
+- **Monitoring:** schedule `healthcheck.sh` and alert on failure, disk, certs.
+- **2FA / tailnet ACLs** on every control-plane account.
+
+Full detail and an action checklist: [`architecture-review.md`](architecture-review.md).
 
 ## Updating
 

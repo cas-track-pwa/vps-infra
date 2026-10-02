@@ -32,6 +32,7 @@ scripts/backup.sh         # sqlite + mariadb + uploads -> restic/rclone
 scripts/healthcheck.sh
 Makefile                  # make sync | tracker | caddy | backup | healthcheck
 docs/deployment.md        # step-by-step, matches the time-tracker guide
+docs/architecture-review.md  # known gaps & hardening checklist
 .github/workflows/deploy.yml
 ```
 
@@ -60,3 +61,11 @@ prints the ITFlow steps at the end rather than driving them.
 
 Update flow: pull the app repos to new tags/branches, then re-run the relevant
 `provision.sh` step (or the `Makefile` target) to redeploy.
+
+## Known gaps
+
+Provisioning covers the happy path. For a production business system, read
+[`docs/architecture-review.md`](docs/architecture-review.md) — it lists items the
+scripts do **not** yet handle: Stripe webhook reachability vs. Tailscale-only,
+outbound email deliverability, backups + restore proof (incl. the ITFlow vault
+key), control-plane 2FA / tailnet ACLs, self-hosted RustDesk, and monitoring.
