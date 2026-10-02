@@ -1,0 +1,30 @@
+<?php
+// Rendered to {{TRACKER_WEBROOT}}/config.php by scripts/provision.sh and made
+// readable only by the web user (chmod 640 www-data:www-data).
+//
+// The bridge runs server-side: the ITFlow API key never reaches the browser.
+return [
+    // ITFlow backend. Loopback keeps ITFlow off the network entirely; the bridge
+    // reaches it in-process. Use the public tailnet URL instead if separated.
+    'ITFLOW_BASE'         => 'http://127.0.0.1:8080',
+
+    // API key from ITFlow Admin > API. Must be tied to a user with the Sales
+    // module at create level and access to the target client.
+    'ITFLOW_API_KEY'      => '__ITFLOW_API_KEY__',
+
+    // ITFlow is served over loopback HTTP here, so no TLS to verify.
+    'ITFLOW_VERIFY_TLS'   => false,
+
+    // Shared secret the PWA sends as X-Bridge-Token. Must match the value
+    // entered under User > ITFlow Settings in the app.
+    'BRIDGE_TOKEN'        => '__BRIDGE_TOKEN__',
+
+    // Empty = same-origin only (the tracker host). Set only for cross-origin dev.
+    'ALLOWED_ORIGIN'      => '',
+
+    // Default Income category id for created invoices (0 = none).
+    'DEFAULT_CATEGORY_ID' => __DEFAULT_CATEGORY_ID__,
+
+    // Timeout (seconds) for calls to ITFlow.
+    'HTTP_TIMEOUT'        => 30,
+];

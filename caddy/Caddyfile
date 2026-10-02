@@ -1,0 +1,25 @@
+# Rendered to /etc/caddy/Caddyfile by scripts/provision.sh, which substitutes
+# {{TAILNET_NAME}}. Caddy is built with the tailscale module; it binds on the
+# tailnet interface and obtains/renews Let's Encrypt certs via DNS-01.
+
+{
+    tailscale
+}
+
+tracker.{{TAILNET_NAME}} {
+    root * /srv/tracker
+
+    @api path /api/*
+    handle @api {
+        reverse_proxy 127.0.0.1:8787
+    }
+
+    handle {
+        php_fastcgi unix//run/php/php8.4-fpm.sock
+        file_server
+    }
+}
+
+itflow.{{TAILNET_NAME}} {
+    reverse_proxy 127.0.0.1:8080
+}

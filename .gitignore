@@ -1,0 +1,6 @@
+.env
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+backups/
+rendered/

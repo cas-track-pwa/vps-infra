@@ -1,0 +1,50 @@
+name: Deploy
+
+# Joins the tailnet with an OAuth client, then SSHes to the VPS over Tailscale
+# and re-applies the infra. No public ingress is used.
+#
+# Required repo secrets:
+#   TS_OAUTH_CLIENT_ID, TS_OAUTH_SECRET  Tailscale OAuth client (tag:ci)
+#   VPS_HOST                             MagicDNS name of the VPS
+#   VPS_USER                             SSH user (needs passwordless sudo for provision.sh)
+#   VPS_SSH_KEY                          private key authorized on the VPS
+#   TAILNET_NAME                         tailnet DNS name, for the healthcheck URL
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/**"
+      - "caddy/**"
+      - "systemd/**"
+      - "tracker/**"
+      - "itflow/**"
+      - ".env.example"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v3
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            set -e
+            cd ~/vps-infra
+            git pull --ff-only
+            sudo ./scripts/provision.sh sync tracker caddy
+            sudo -E ./itflow/install-endpoint.sh
+            TRACKER_URL="https://tracker.${{ secrets.TAILNET_NAME }}" ./scripts/healthcheck.sh

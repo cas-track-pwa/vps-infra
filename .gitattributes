@@ -1,0 +1,2 @@
+# Store everything as LF; these files run on Linux and CRLF breaks shebangs.
+* text=auto eol=lf
