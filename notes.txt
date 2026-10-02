@@ -1,0 +1,5 @@
+Other applications/services to likely be used
+Novo - banking
+Stripe - billing/payments
+Rustdesk - remote access
+OVHCloud - VPS provider
