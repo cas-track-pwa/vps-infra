@@ -33,7 +33,7 @@ set +a
 : "${TIME_TRACKER_REPO:?set TIME_TRACKER_REPO in .env}"
 : "${JWT_SECRET:?set JWT_SECRET in .env}"
 : "${BRIDGE_TOKEN:?set BRIDGE_TOKEN in .env}"
-: "${ITFLOW_API_KEY:?set ITFLOW_API_KEY in .env}"
+# ITFLOW_API_KEY is only needed by the bridge; leave it blank until ITFlow is installed.
 
 TRACKER_WEBROOT="${TRACKER_WEBROOT:-/srv/tracker}"
 ITFLOW_WEBROOT="${ITFLOW_WEBROOT:-/var/www/itflow}"
@@ -46,7 +46,7 @@ log() { printf '\n\033[1;34m==> %s\033[0m\n' "$*"; }
 step_base() {
     log "Base packages, firewall, timezone"
     apt-get update
-    apt-get install -y curl git ufw unattended-upgrades ca-certificates sqlite3 php8.4-fpm
+    apt-get install -y curl git ufw unattended-upgrades ca-certificates sqlite3 php8.4-fpm build-essential python3
     ufw allow OpenSSH
     ufw --force enable
     timedatectl set-timezone UTC
@@ -89,7 +89,7 @@ step_sync() {
     umask 077
     cat > "$SYNC_DIR/.env" <<EOF
 JWT_SECRET=$JWT_SECRET
-FALLBACK_ALLOWED_USERS=${FALLBACK_ALLOWED_USERS:-'[]'}
+FALLBACK_ALLOWED_USERS='${FALLBACK_ALLOWED_USERS:-[]}'
 PORT=${PORT:-8787}
 DB_PATH=$SYNC_DIR/data/tt.sqlite
 EOF
